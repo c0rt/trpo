@@ -9,12 +9,11 @@ public class Tree<T extends Comparable<T>> {
         root = add(root, node);
     }
 
-    private Node<T> add(Node<T> top, Node<T> node)
-    {
+    private Node<T> add(Node<T> top, Node<T> node) {
         if (top == null) {
             return node;
         }
-        if(top.compareTo(node) <= 0) {
+        if (top.compareTo(node) <= 0) {
             top.right = add(top.right, node);
         } else {
             top.left = add(top.left, node);
