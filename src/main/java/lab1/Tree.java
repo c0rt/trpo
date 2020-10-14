@@ -12,10 +12,15 @@ public class Tree<T extends Comparable<T>> implements Iterable<T> {
         binaryTree = new ArrayList<>();
     }
 
-    public T getItem(int index) {
+    public T getValue(int index) {
         return binaryTree.get(index);
     }
 
+    /**
+     * Вставка через корень
+     *
+     * @param newValue - значение листа
+     */
     public void insert(T newValue) {
         insert(0, newValue);
     }
@@ -30,9 +35,9 @@ public class Tree<T extends Comparable<T>> implements Iterable<T> {
             }
 
             if (val.compareTo(newValue) <= 0) {
-                insert(2 * (index + 1), newValue);
+                insert(getRightIndex(index), newValue);
             } else {
-                insert(2 * (index + 1) - 1, newValue);
+                insert(getLeftIndex(index), newValue);
             }
         } catch (IndexOutOfBoundsException e) {
             while (index >= binaryTree.size()) {
@@ -56,9 +61,9 @@ public class Tree<T extends Comparable<T>> implements Iterable<T> {
                 if (index >= binaryTree.size() || binaryTree.get(index) == null)
                     return;
 
-                refreshCache(2 * (index + 1));
+                refreshCache(getRightIndex(index));
                 cache.add(binaryTree.get(index));
-                refreshCache(2 * (index + 1) - 1);
+                refreshCache(getLeftIndex(index));
             }
 
             private void refreshCache() {
@@ -117,6 +122,86 @@ public class Tree<T extends Comparable<T>> implements Iterable<T> {
 
         balance(arr, 0, arr.size() - 1);
     }
+
+    private boolean nodeExists(int index) {
+        return binaryTree.size() > index && binaryTree.get(index) != null;
+    }
+
+    public void remove(int index) {
+        if (!nodeExists(index)) return;
+
+        int parent = getParentIndex(index);
+
+        boolean rightExists = nodeExists(getRightIndex(index));
+        boolean leftExists = nodeExists(getLeftIndex(index));
+
+        if (!rightExists || !leftExists) {
+            join(index);
+        }
+
+        if (rightExists && leftExists) {
+            int next = next(index);
+            binaryTree.set(index, getValue(next));
+            join(next(index));
+        }
+    }
+
+    private int getRightIndex(int index) {
+        return 2 * (index + 1);
+    }
+
+    private int getLeftIndex(int index) {
+        return 2 * (index + 1) - 1;
+    }
+
+    private int getParentIndex(int index) {
+        return (index - 1) / 2;
+    }
+
+    public int minimum(int index) {
+        int left = getLeftIndex(index);
+        if (!nodeExists(left))
+            return index;
+        else return minimum(left);
+    }
+
+    /**
+     * Дать следующий элемент по его значению
+     */
+    public int next(int index) {
+        int right = getRightIndex(index);
+        if (nodeExists(right))
+            return minimum(right);
+
+        int parent = getParentIndex(index);
+        while (nodeExists(parent) && (index == getRightIndex(parent))) {
+            index = parent;
+            parent = getParentIndex(parent);
+        }
+        return parent;
+    }
+
+    public void join(int index) {
+        int leftIndex = getLeftIndex(index);
+        int rightIndex = getRightIndex(index);
+
+        boolean leftExists = nodeExists(leftIndex);
+        boolean rightExists = nodeExists(rightIndex);
+
+        if (leftExists) {
+            binaryTree.set(index, binaryTree.get(leftIndex));
+            join(leftIndex);
+        }
+
+        if (rightExists) {
+            binaryTree.set(index, binaryTree.get(rightIndex));
+            join(rightIndex);
+        }
+
+        if (!leftExists && !rightExists) {
+            binaryTree.remove(index);
+        }
+    }
 }
 
 class Main {
@@ -124,14 +209,19 @@ class Main {
         try {
             Tree<Integer> tree = new Tree<>();
 
-            tree.insert(5);
-            tree.insert(6);
-            tree.insert(7);
+            tree.insert(8);
+            tree.insert(3);
             tree.insert(1);
-            tree.insert(2);
-            tree.insert(3);
-            tree.insert(3);
+            tree.insert(6);
+            tree.insert(4);
+            tree.insert(4);
             tree.insert(5);
+            tree.insert(7);
+            tree.insert(10);
+            tree.insert(14);
+            tree.insert(13);
+
+            tree.remove(1);
 
             tree.forEach(node -> {
                 if (node == null)
@@ -141,6 +231,16 @@ class Main {
             });
 
             System.out.println("------------------------");
+
+            tree.forEach(node -> {
+                if (node == null)
+                    System.out.println("| null");
+                else
+                    System.out.println(node.toString());
+            });
+
+            System.out.println("------------------------");
+
 
             for (Integer integer : tree) {
                 System.out.println(integer.toString());
