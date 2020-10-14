@@ -130,8 +130,6 @@ public class Tree<T extends Comparable<T>> implements Iterable<T> {
     public void remove(int index) {
         if (!nodeExists(index)) return;
 
-        int parent = getParentIndex(index);
-
         boolean rightExists = nodeExists(getRightIndex(index));
         boolean leftExists = nodeExists(getLeftIndex(index));
 
