@@ -3,10 +3,12 @@ package lab1;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Random;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class Tree<T extends Comparable<T>> implements Iterable<T> {
-    private final ArrayList<T> binaryTree;
+    private ArrayList<T> binaryTree;
 
     Tree() {
         binaryTree = new ArrayList<>();
@@ -19,13 +21,18 @@ public class Tree<T extends Comparable<T>> implements Iterable<T> {
     /**
      * Вставка через корень
      *
-     * @param newValue - значение листа
+     * @param newValue - значение нового элемента
      */
     public void insert(T newValue) {
         insert(0, newValue);
     }
 
-    // Включение с сохранением порядка
+    /**
+     * Вставка с сохранением порядка
+     *
+     * @param index    - индекс массива для вставки
+     * @param newValue - новое значение
+     */
     private void insert(int index, T newValue) {
         try {
             T val = binaryTree.get(index);
@@ -164,7 +171,7 @@ public class Tree<T extends Comparable<T>> implements Iterable<T> {
     }
 
     /**
-     * Дать следующий элемент по его значению
+     * Получить следующий элемент по его значению
      */
     public int next(int index) {
         int right = getRightIndex(index);
@@ -203,58 +210,60 @@ public class Tree<T extends Comparable<T>> implements Iterable<T> {
 }
 
 class Main {
+    public static void printTree(Tree<String> tree) {
+        tree.forEach(node -> {
+            if (node == null)
+                System.out.println("| null");
+            else
+                System.out.println(node);
+        });
+    }
+
     public static void main(String[] args) {
         try {
-            Tree<Integer> tree = new Tree<>();
-
-            tree.insert(8);
-            tree.insert(3);
-            tree.insert(1);
-            tree.insert(6);
-            tree.insert(4);
-            tree.insert(4);
-            tree.insert(5);
-            tree.insert(7);
-            tree.insert(10);
-            tree.insert(14);
-            tree.insert(13);
-
-            tree.remove(1);
-
-            tree.forEach(node -> {
-                if (node == null)
-                    System.out.println("| null");
-                else
-                    System.out.println(node.toString());
-            });
-
-            System.out.println("------------------------");
-
-            tree.forEach(node -> {
-                if (node == null)
-                    System.out.println("| null");
-                else
-                    System.out.println(node.toString());
-            });
-
-            System.out.println("------------------------");
-
-
-            for (Integer integer : tree) {
-                System.out.println(integer.toString());
+            String symbols = "abcdefghijklmnopqrstuvwxyz";
+            Tree<String> tree = new Tree<>();
+            for (int i = 0; i < 10; i++) {
+                tree.insert(new Random().ints(3, i, symbols.length())
+                        .mapToObj(symbols::charAt)
+                        .map(Object::toString)
+                        .collect(Collectors.joining()));
             }
 
+            System.out.println("Вывод сгенерированных эелементов массива посредством иетратора forEach:");
+            printTree(tree);
+
+            System.out.println("------------------------");
+            System.out.println("Вывод сгенерированных эелементов массива посредством итераторов и спользованием цикла for:");
+            for (String value : tree) {
+                System.out.println(value);
+            }
+
+            System.out.println("------------------------");
+            System.out.println("Добавление строки \"asd\":");
+            tree.insert("asd");
+            printTree(tree);
+
+            System.out.println("------------------------");
+            System.out.println("Полчение значения элемента по индексу 2:");
+            System.out.println(tree.getValue(2));
+
+            System.out.println("------------------------");
+            System.out.println("Удаление элемента по индексу 2:");
+            tree.remove(2);
+            printTree(tree);
+
+            System.out.println("------------------------");
+            System.out.println("Балансировка дерева:");
             tree.balance();
+            printTree(tree);
 
             System.out.println("------------------------");
 
-            tree.forEach(node -> {
-                if (node == null)
-                    System.out.println("| null");
-                else
-                    System.out.println(node.toString());
-            });
-
+        } catch (NullPointerException e) {
+            System.out.println("Поймано исключение NullPointerException: " + e.toString());
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println("Поймано исключение IndexOutOfBoundsException: " + e.toString());
         } catch (Exception e) {
             System.out.println("Поймано исключение: " + e.toString());
         }
